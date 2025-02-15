@@ -1,2 +1,6 @@
+# for build
 /target
-/tmp
+# for temporary files during tests
+/tmp 
+#for database files, using kv store fjall
+/data
