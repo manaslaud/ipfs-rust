@@ -153,4 +153,25 @@ mod tests {
         let root = generate_merkle_root(&mut cids).unwrap();
         println!("{:?}", root);
     }
+    #[test]
+    fn test_generate_merkle_tree() {
+        let data1: [u8; 8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+        let cid1 = generate_cid(&data1);
+        let data2: [u8; 8] = [0x66, 0x50, 0x4E, 0x47, 0x02, 0x0A, 0x1A, 0x1A];
+        let cid2 = generate_cid(&data2);
+        let data3: [u8; 8] = [0x81, 0x50, 0x4E, 0x47, 0x0B, 0x0A, 0x1A, 0x0A];
+        let cid3 = generate_cid(&data3);
+        let data4: [u8; 8] = [0x84, 0x40, 0x4E, 0x47, 0x0A, 0x0A, 0x1A, 0x9A];
+        let cid4 = generate_cid(&data4);
+        let mut cids: Vec<Cid> = Vec::new();
+        cids.push(cid1);
+        cids.push(cid2);
+        cids.push(cid3);
+        cids.push(cid4);
+        let tree = generate_merkle_tree(cids.clone()).unwrap();
+        println!("{:?}", tree);
+        //compare root obtained here with root obtained in the previous test
+        let root = generate_merkle_root(&mut cids.clone()).unwrap();
+        assert_eq!(tree.last().unwrap().first().unwrap(), &root);
+    }
 }
