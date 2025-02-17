@@ -4,7 +4,7 @@ A Rust implementation for an IPFS-like system with basic functionalities such as
 
 ---
 
-## **Features**
+## **Features** 
 
 - **Content Identifier (CID) Handling**:
   - Generates and resolves CIDs for content.
