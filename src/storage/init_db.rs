@@ -1,15 +1,15 @@
-use fjall::{Config, Error, Keyspace,PartitionHandle,PartitionCreateOptions};
-use std::path::PathBuf;
+use fjall::{Config, Error, Keyspace, PartitionCreateOptions, PartitionHandle};
 use std::fs;
+use std::path::PathBuf;
 
-
-pub async fn init_db(path:String) -> Result<PartitionHandle,Error> {
-    let folder: PathBuf = PathBuf::from(path); 
+pub async fn init_db(path: String) -> Result<PartitionHandle, Error> {
+    let folder: PathBuf = PathBuf::from(path);
     if !folder.exists() {
         fs::create_dir_all(&folder)?;
     }
-    let keyspace: Keyspace = Config::new(folder).open()?; 
-    let items: PartitionHandle = keyspace.open_partition("slices", PartitionCreateOptions::default())?;
+    let keyspace: Keyspace = Config::new(folder).open()?;
+    let items: PartitionHandle =
+        keyspace.open_partition("slices", PartitionCreateOptions::default())?;
     Ok(items)
 }
 

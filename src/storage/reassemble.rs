@@ -1,8 +1,8 @@
 use infer::get;
 
 pub fn detect_file_type(file_data: &[u8]) -> String {
-   let kind= get(file_data).expect("Unknown file type");
-   kind.mime_type().to_string()
+    let kind = get(file_data).expect("Unknown file type");
+    kind.mime_type().to_string()
 }
 
 #[cfg(test)]

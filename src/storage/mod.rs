@@ -1,5 +1,5 @@
-pub mod init_db;
 pub mod dag;
+pub mod init_db;
 pub mod reassemble;
 
 pub use init_db::init_db;
