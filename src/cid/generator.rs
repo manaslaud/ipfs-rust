@@ -2,6 +2,7 @@ use cid::Cid;
 use multihash::Multihash;
 use std::fs::File;
 use std::io::{self, Read};
+use crate::storage::MerkleNode;
 
 const CHUNK_SIZE: usize = 1024; 
 
@@ -19,21 +20,25 @@ pub fn generate_cid(data: &[u8]) -> Cid {
 }
 
 
-pub fn generate_cids_from_file(file_path: &str) -> io::Result<Vec<Cid>> {
+pub fn generate_nodes_from_file(file_path: &str) -> io::Result<Vec<MerkleNode>> {
     let mut file = File::open(file_path)?;
     let mut buffer = vec![0; CHUNK_SIZE];
-    let mut cids = Vec::new();
-
+    let mut leaves = Vec::new();
     while let Ok(bytes_read) = file.read(&mut buffer) {
         if bytes_read == 0 {
             break; 
         }
         let chunk = &buffer[..bytes_read];
         let cid = generate_cid(chunk);
-        cids.push(cid);
+        let node:MerkleNode=MerkleNode{
+            cid,
+            data:Some(chunk.to_vec()),
+            links:vec![]
+        };
+        leaves.push(node);
     }
 
-    Ok(cids)
+    Ok(leaves)
 }
 
 //tests for the generate_cid function
@@ -41,6 +46,7 @@ pub fn generate_cids_from_file(file_path: &str) -> io::Result<Vec<Cid>> {
 mod tests {
     use super::*;
     use multihash::Multihash;
+    use crate::storage::dag::generate_merkle_tree;
     #[test]
     fn test_generate_cid() {
         const SHA2_256: u64 = 0x12;
@@ -51,7 +57,7 @@ mod tests {
         assert_eq!(generate_cid(&data), cid);
     }
     #[test]
-    fn test_generate_cids_from_file() -> io::Result<()> {
+    fn test_generate_nodes_from_file() -> io::Result<()> {
         use tempfile::NamedTempFile;
         use std::io::{Write, BufWriter};
     
@@ -66,18 +72,17 @@ mod tests {
     
         // Get the temp file's path and convert it to a string
         let file_path = temp_file.path();
-        println!("Temp file path: {:?}", file_path);
     
-        // Generate CIDs from the temporary file
-        let cids = generate_cids_from_file(file_path.to_str().unwrap())?;
+        // Generate leaves from the temporary file
+        let leaves = generate_nodes_from_file(file_path.to_str().unwrap())?;
     
-        assert!(!cids.is_empty(), "CIDs list should not be empty");
-        assert!(cids.len() >= 1, "At least one CID should be generated");
+        assert!(!leaves.is_empty(), "leaves list should not be empty");
+        assert!(leaves.len() >= 1, "At least one leaf should be generated");
     
-        for cid in &cids {
-            println!("{}", cid);   
+        let tree=generate_merkle_tree(leaves.clone(), "png").unwrap();
+        for node in tree {
+            print!("{:?}",node.data)
         }
-    
         Ok(())
     }
     
