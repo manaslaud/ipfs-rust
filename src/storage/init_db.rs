@@ -38,17 +38,26 @@ Proof
     Contradiction: We assumed N1≠N2​, but we just proved that their content must be identical.
     Therefore, if two nodes have the same CID, they must be identical. 
  */
-pub async fn store_file(tree:Vec<MerkleNode>) {
+pub async fn store_file(tree: Vec<MerkleNode>) -> bool {
     let items = init_db(String::from("./tmp/data")).await.unwrap();
+    let mut success = true;  
+
     for x in tree.iter() {
-        let value=serde_json::to_string(x).unwrap(); 
+        let value = serde_json::to_string(x).unwrap();
         let output = items.insert(x.cid.to_string(), value);
+
         match output {
-            Ok(()) => print!("Success"),
-            Err(error) => print!("Error, {:?}",error)
+            Ok(()) => println!("Success storing the file"),
+            Err(error) => {
+                eprintln!("Error while storing the file: {:?}", error);
+                success = false;  
+            }
         }
     }
+    
+    success  
 }
+
 
 #[cfg(test)]
 mod tests {

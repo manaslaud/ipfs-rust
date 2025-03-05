@@ -75,7 +75,9 @@ mod tests {
 
         let tree = generate_merkle_tree(leaves.clone(),"png").unwrap();
         let root_node=tree.last().unwrap().cid.to_string();
-        store_file(tree).await;
+        let res= store_file(tree).await;
+        //check if the file is stored correctly
+        assert_eq!(res,true);
         let retrived=return_node_from_db(root_node.to_string()).await.unwrap().cid.to_string();
         assert_eq!(root_node,retrived);
     }
