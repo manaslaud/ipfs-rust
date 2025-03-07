@@ -33,7 +33,8 @@ pub fn generate_nodes_from_file(file_path: &str) -> io::Result<Vec<MerkleNode>> 
         let node:MerkleNode=MerkleNode{
             cid,
             data:Some(chunk.to_vec()),
-            links:vec![]
+            links:vec![],
+            isDup:false
         };
         leaves.push(node);
     }
