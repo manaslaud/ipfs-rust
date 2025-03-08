@@ -125,11 +125,10 @@ mod tests {
             create_leaf(b"File Chunk 3"),
             create_leaf(b"File Chunk 4"),
             create_leaf(b"File Chunk 2"),
-
         ];
 
         let tree = generate_merkle_tree(leaves.clone(), "png").unwrap();
-        println!("{}",tree.len());
+        println!("{}", tree.len());
         let root_node = tree.last().unwrap().cid.to_string();
         let res = store_file(tree).await;
         //check if the file is stored correctly
@@ -150,16 +149,15 @@ mod tests {
             create_leaf(b"File Chunk 32"),
             create_leaf(b"File Chunk 42"),
             create_leaf(b"File Chunk 42"),
-
         ];
         let tree = generate_merkle_tree(leaves.clone(), "png").unwrap();
         let root_node = tree.last().unwrap().cid.to_string();
         let res = store_file(tree).await;
         assert_eq!(res, true);
-        let retrieved_leaves=get_leaves_from_root_node_cid(root_node).await.unwrap();
+        let retrieved_leaves = get_leaves_from_root_node_cid(root_node).await.unwrap();
+        let mut final_result_to_string: Vec<String> = Vec::new();
         for x in retrieved_leaves {
-            println!("{:?}",x.data);
+            final_result_to_string.push(String::from_utf8_lossy(&x.data.unwrap()).to_string());
         }
-        // assert_eq!(retrieved_leaves,leaves);
     }
 }
