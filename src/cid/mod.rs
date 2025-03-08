@@ -4,4 +4,4 @@ pub mod generator;
 pub use generator::generate_cid;
 // pub use resolver::resolve_cid;
 
-pub use generator::generate_nodes_from_file;
+pub use generator::generate_leaves_from_file;

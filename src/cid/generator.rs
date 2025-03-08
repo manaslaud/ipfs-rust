@@ -20,7 +20,7 @@ pub fn generate_cid(data: &[u8]) -> Cid {
 }
 
 
-pub fn generate_nodes_from_file(file_path: &str) -> io::Result<Vec<MerkleNode>> {
+pub fn generate_leaves_from_file(file_path: &str) -> io::Result<Vec<MerkleNode>> {
     let mut file = File::open(file_path)?;
     let mut buffer = vec![0; CHUNK_SIZE];
     let mut leaves = Vec::new();
@@ -48,6 +48,8 @@ mod tests {
     use super::*;
     use multihash::Multihash;
     use crate::storage::dag::generate_merkle_tree;
+    use std::fs::File;
+    use std::io::{self, Read};
     #[test]
     fn test_generate_cid() {
         const SHA2_256: u64 = 0x12;
@@ -58,7 +60,7 @@ mod tests {
         assert_eq!(generate_cid(&data), cid);
     }
     #[test]
-    fn test_generate_nodes_from_file() -> io::Result<()> {
+    fn test_generate_leaves_from_file() -> io::Result<()> {
         use tempfile::NamedTempFile;
         use std::io::{Write, BufWriter};
     
@@ -75,7 +77,7 @@ mod tests {
         let file_path = temp_file.path();
     
         // Generate leaves from the temporary file
-        let leaves = generate_nodes_from_file(file_path.to_str().unwrap())?;
+        let leaves = generate_leaves_from_file(file_path.to_str().unwrap())?;
     
         assert!(!leaves.is_empty(), "leaves list should not be empty");
         assert!(leaves.len() >= 1, "At least one leaf should be generated");
@@ -86,6 +88,32 @@ mod tests {
         }
         Ok(())
     }
+    #[test]
+    fn test_generate_retrieve_file() {
+        let test_file_path = "readme.md"; 
+
+        let mut file = File::open(test_file_path).expect("Failed to open manas.txt");
+
+        let mut content = String::new();
+        file.read_to_string(&mut content).expect("Failed to read file");
+
+        let nodes = generate_leaves_from_file(test_file_path).expect("Failed to generate nodes");
+
+        // Verify that nodes are generated
+        assert!(!nodes.is_empty(), "No leaves were generated from the file");
+
+        // Ensure each node has a valid CID
+        for node in &nodes {
+            assert!(!node.cid.to_string().is_empty(), "Generated node has an empty CID");
+            assert!(node.data.is_some(), "Generated node has no data");
+        }
+
+        let tree=generate_merkle_tree(nodes, "md").unwrap();
+        for x in tree {
+            println!("{:?}",x.links);
+        }
+
     
+    }
     
 }
