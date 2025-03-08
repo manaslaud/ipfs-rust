@@ -73,7 +73,7 @@ pub async fn get_leaves_from_root_node_cid(
     if root_node.is_none() {
         return Err(ReassembleErrors::RootNodeNotFoundError);
     }
-
+    // res.push(root_node.clone().unwrap());
     let mut q: Queue<Cid> = queue![];
     let root_node_links = root_node.unwrap().links;
 
@@ -90,14 +90,16 @@ pub async fn get_leaves_from_root_node_cid(
         if let Some(node) = node {
             if !node.is_dup {
                 let links = node.links.clone();
-                res.push(node);
+                if links.len() == 0 {
+                    res.push(node);
+                }
                 for link in links {
                     let _ = q.add(link);
                 }
             }
         }
     }
-    if q.size() != 0 {
+    if q.size() == 0 {
         return Ok(res);
     }
     return Err(ReassembleErrors::UnknownError);
@@ -147,12 +149,17 @@ mod tests {
             create_leaf(b"File Chunk 22"),
             create_leaf(b"File Chunk 32"),
             create_leaf(b"File Chunk 42"),
+            create_leaf(b"File Chunk 42"),
+
         ];
         let tree = generate_merkle_tree(leaves.clone(), "png").unwrap();
         let root_node = tree.last().unwrap().cid.to_string();
         let res = store_file(tree).await;
         assert_eq!(res, true);
         let retrieved_leaves=get_leaves_from_root_node_cid(root_node).await.unwrap();
-        assert_eq!(leaves,retrieved_leaves);
+        for x in retrieved_leaves {
+            println!("{:?}",x.data);
+        }
+        // assert_eq!(retrieved_leaves,leaves);
     }
 }

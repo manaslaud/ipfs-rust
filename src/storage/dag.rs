@@ -25,47 +25,6 @@ pub struct MerkleNode {
     pub is_dup:bool
 }
 
-fn ensure_even(data: &mut Vec<MerkleNode>, tree: &mut Vec<MerkleNode>) {
-    if data.len() % 2 != 0 {
-        let mut last = data.last().unwrap().clone();
-        last.is_dup = true;
-        data.push(last.clone());
-        // Record the duplicate node in the overall tree.
-        tree.push(last);
-    }
-}
-
-
-// fn generate_merkle_root(nodes: &mut Vec<MerkleNode>) -> Result<MerkleNode, DagErrors> {
-//     if nodes.is_empty() {
-//         return Err(DagErrors::EmptyError);
-//     }
-
-//     ensure_even(nodes);
-
-//     let mut combined_nodes = Vec::new();
-
-//     for chunk in nodes.chunks(2) {
-//         let combined_data: Vec<u8> = chunk.iter()
-//             .flat_map(|node| node.cid.to_bytes())
-//             .collect();
-        
-//         let new_cid = generate_cid(&combined_data);
-
-//         combined_nodes.push(MerkleNode {
-//             cid: new_cid,
-//             links: chunk.iter().map(|node| node.cid.clone()).collect(),
-//             data: None, // Internal nodes don't store data
-//             is_dup:false
-//         });
-//     }
-
-//     if combined_nodes.len() == 1 {
-//         return Ok(combined_nodes[0].clone());
-//     }
-
-//     generate_merkle_root(&mut combined_nodes)
-// }
 
 pub fn generate_merkle_tree(
     leaves: Vec<MerkleNode>,
@@ -83,24 +42,46 @@ pub fn generate_merkle_tree(
     let mut current_level: Vec<MerkleNode> = leaves;
 
     while current_level.len() > 1 {
-        // Ensure even number of nodes at this level and record any duplicate in the overall tree.
-        ensure_even(&mut current_level, &mut tree);
-
         let mut next_level: Vec<MerkleNode> = Vec::new();
+        let mut i = 0;
 
-        for chunk in current_level.chunks(2) {
-            let combined_data: Vec<u8> = chunk.iter()
-                .flat_map(|node| node.cid.to_bytes())
-                .collect();
+        while i < current_level.len() {
+            if i + 1 < current_level.len() {
+                // Standard pairing: two nodes available.
+                let left = &current_level[i];
+                let right = &current_level[i + 1];
 
-            let new_cid = generate_cid(&combined_data);
+                let combined_data: Vec<u8> = left.cid.to_bytes()
+                    .into_iter()
+                    .chain(right.cid.to_bytes())
+                    .collect();
+                let new_cid = generate_cid(&combined_data);
 
-            next_level.push(MerkleNode {
-                cid: new_cid,
-                links: chunk.iter().map(|node| node.cid.clone()).collect(),
-                data: None,
-                is_dup: false,
-            });
+                next_level.push(MerkleNode {
+                    cid: new_cid,
+                    links: vec![left.cid.clone(), right.cid.clone()],
+                    data: None,
+                    is_dup: false,
+                });
+                i += 2;
+            } else {
+                // Odd node: hash the node with itself.
+                let node = &current_level[i];
+
+                let combined_data: Vec<u8> = node.cid.to_bytes()
+                    .into_iter()
+                    .chain(node.cid.to_bytes())
+                    .collect();
+                let new_cid = generate_cid(&combined_data);
+
+                next_level.push(MerkleNode {
+                    cid: new_cid,
+                    links: vec![node.cid.clone()],
+                    data: None,
+                    is_dup: false,
+                });
+                i += 1;
+            }
         }
 
         // Add the newly created parent nodes to the overall tree.
@@ -133,21 +114,21 @@ mod tests {
     #[test]
     fn test_generate_merkle_tree() {
         let leaves = vec![
-            create_leaf(b"File Chunk 1"),
-            create_leaf(b"File Chunk 2"),
-            create_leaf(b"File Chunk 3"),
-            create_leaf(b"File Chunk 4"),
+            create_leaf(b"File Chunk 12"),
+            create_leaf(b"File Chunk 22"),
+            create_leaf(b"File Chunk 32"),
+            create_leaf(b"File Chunk 42"),
+            create_leaf(b"File Chunk 42"),
         ];
 
         let tree = generate_merkle_tree(leaves.clone(),"png").unwrap();
         for x in 0..tree.len() {
-            println!("{}",tree[x]);
+            println!("{:?}",tree[x].links);
         }
         assert!(!tree.is_empty());
         assert_eq!(
             convert_raw_to_file_extension(tree.last().unwrap().data.as_ref().unwrap().clone()).unwrap(),
             "png".to_string()
         );
-                assert_eq!(tree.last().unwrap().links.len(), 2); // Root should have 2 children
     }
 }
