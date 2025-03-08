@@ -13,5 +13,6 @@ pub fn default_merkle_node() -> MerkleNode {
         cid: default_cid(),
         data: Some(_DEFAULTDATA.to_vec()),
         links: Vec::new(),
+        is_dup:false
     }
 }
