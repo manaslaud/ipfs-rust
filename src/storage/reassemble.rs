@@ -110,7 +110,9 @@ mod tests {
     use super::*;
     use crate::storage::dag::{create_leaf, generate_merkle_tree};
     use crate::storage::store_file;
-
+    use std::fs::File;
+    use std::io::Write;
+    use std::path::Path;
     #[test]
     fn test_detect_file_type() {
         let data: Vec<u8> = vec![0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
@@ -142,7 +144,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_get_leaves_from_root_node_cid() {
+    async fn test_get_leaves_from_root_node_cid_create_a_file() {
         let leaves = vec![
             create_leaf(b"File Chunk 12"),
             create_leaf(b"File Chunk 22"),
@@ -150,14 +152,21 @@ mod tests {
             create_leaf(b"File Chunk 42"),
             create_leaf(b"File Chunk 42"),
         ];
-        let tree = generate_merkle_tree(leaves.clone(), "png").unwrap();
+        let tree = generate_merkle_tree(leaves.clone(), "txt").unwrap();
         let root_node = tree.last().unwrap().cid.to_string();
         let res = store_file(tree).await;
         assert_eq!(res, true);
         let retrieved_leaves = get_leaves_from_root_node_cid(root_node).await.unwrap();
-        let mut final_result_to_string: Vec<String> = Vec::new();
+        // let mut final_result_to_string: Vec<String> = Vec::new();
+
+        let file_path = Path::new("manas.txt"); // Root directory of the project
+        let mut file = File::create(file_path).unwrap(); // Create the file
+
         for x in retrieved_leaves {
-            final_result_to_string.push(String::from_utf8_lossy(&x.data.unwrap()).to_string());
+            // final_result_to_string.push(String::from_utf8_lossy(&x.data.unwrap()).to_string());
+            // println!("{}",String::from_utf8_lossy(&x.data.unwrap()).to_string());
+            let _= file.write_all(&x.data.unwrap());
         }
+        
     }
 }
