@@ -1,7 +1,7 @@
 # **ipfs-rs**
 
 A Rust implementation for an IPFS-like system with basic functionalities such as Content Identifier (CID) handling, storage management, networking, pinning, and more. This project aims to provide a decentralized file-sharing platform and a system to manage, resolve, and retrieve content via CIDs.
-
+ 
 ---
 
 ## **Features**
@@ -20,9 +20,6 @@ A Rust implementation for an IPFS-like system with basic functionalities such as
 
 - **Gateway**:
   - HTTP gateway for serving files over the web.
-
-- **Configuration Management**:
-  - Load and store configuration settings.
 
 ---
 
