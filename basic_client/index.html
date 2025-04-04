@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Test</title>
+</head>
+
+<body>
+    <form>
+        <input type="file" id="fileInput" name="fileInput" accept=".txt" />
+        <button id="submit">Submit File</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector("form").addEventListener("submit", (e) => {
+                e.preventDefault(); // stops page reload
+            });
+
+            const button = document.getElementById("submit");
+            const input = document.getElementById("fileInput");
+
+            button.addEventListener("click", async function (e) {
+                e.preventDefault();
+                const file = input.files[0];
+                if (!file) return alert("Please choose a file!");
+
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    const res = await fetch("http://127.0.0.1:8080/upload/manas.txt", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const text = await res.text();
+                    console.log("Upload response:", text);
+                } catch (err) {
+                    console.error("Upload failed", err);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
