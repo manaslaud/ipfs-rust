@@ -58,6 +58,26 @@ pub async fn store_file(tree: Vec<MerkleNode>) -> bool {
     success  
 }
 
+pub async fn store_file_with_handle(tree: Vec<MerkleNode>, items: PartitionHandle) -> bool {
+    let mut success = true;
+
+    for x in tree.iter() {
+        let value = serde_json::to_string(x).unwrap();
+        let output = items.insert(x.cid.to_string(), value);
+
+        match output {
+            Ok(()) => println!("Success storing the file"),
+            Err(error) => {
+                eprintln!("Error while storing the file: {:?}", error);
+                success = false;
+            }
+        }
+    }
+
+    success
+}
+
+
 
 #[cfg(test)]
 mod tests {
