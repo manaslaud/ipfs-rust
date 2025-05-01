@@ -27,3 +27,7 @@ paris = "1.5"
 actix-multipart = "0.7.2"
 futures-util = "0.3.31"
 actix-cors = "0.6"
+libp2p = { version = "0.55", features = ["tcp", "tls", "kad", "identify", "request-response", "json", "tokio", "dns", "noise", "yamux", "macros"] }
+identity = "0.0.6"
+async-trait = "0.1.88"
+# libp2p-bitswap = "0.25.1"
