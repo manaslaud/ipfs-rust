@@ -26,3 +26,4 @@ pub const _MAX_FILE_COUNT: usize = 3;
 pub const _MAX_FILE_SIZE: u64 = 10 * 1024;
 pub const _LEGAL_FILE_TYPES: [Mime; 3] = [IMAGE_PNG, IMAGE_JPEG, IMAGE_GIF];
 pub const _UPLOAD_DIR: &str = "uploads/";
+pub const _STREAMPROTOCOLNAME: &str = "/manaslibp2p/connection/1.0.0";
