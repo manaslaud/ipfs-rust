@@ -1,5 +1,7 @@
 # **ipfs-rs**
 
+## **Under Development** 
+
 A Rust implementation for an IPFS-like system with basic functionalities such as Content Identifier (CID) handling, storage management, networking, pinning, and more. This project aims to provide a decentralized file-sharing platform and a system to manage, resolve, and retrieve content via CIDs.
  
 ---
@@ -76,7 +78,7 @@ ipfs-rs/
 ## **Dependencies**
 
 - `cid`: Rust crate for working with Content Identifiers.
-- `surrealdb`: A fast, key-value store for storing file slices and metadata.
+- `fjall`: A fast, key-value store for storing file slices and metadata.
 - `libp2p`: Networking library for peer-to-peer communication.
 - `serde`, `serde_json`: Serialization/deserialization for data formats.
 - `tokio`: Asynchronous runtime for handling tasks concurrently.
